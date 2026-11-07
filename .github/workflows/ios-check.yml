@@ -1,0 +1,13 @@
+name: ios-check
+on: workflow_dispatch
+jobs:
+  check:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-apple-ios
+      - name: Check iOS build
+        working-directory: horizon
+        run: cargo check --target aarch64-apple-ios -p horizon-client
