@@ -10,6 +10,13 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
         with:
           targets: aarch64-apple-ios
+      - name: Quien trae wayland y arboard
+        working-directory: horizon
+        run: |
+          echo "=== wayland-backend ==="
+          cargo tree --target aarch64-apple-ios -p horizon-client -i wayland-backend || true
+          echo "=== arboard ==="
+          cargo tree --target aarch64-apple-ios -p horizon-client -i arboard || true
       - name: Check iOS build
         working-directory: horizon
         run: cargo check --target aarch64-apple-ios -p horizon-client
