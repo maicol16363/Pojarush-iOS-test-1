@@ -1,7 +1,5 @@
 name: ios-check
 on: workflow_dispatch
-permissions:
-  contents: write
 jobs:
   check:
     runs-on: macos-latest
@@ -12,16 +10,11 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
         with:
           targets: aarch64-apple-ios
-      - name: Parche keybinds
+      - name: Ver horizon-hdr
         run: |
-          f=horizon/crates/horizon-client-input/src/keybinds.rs
-          sed -i '' '/target_os = "ios"/!s/target_os = "android"/any(target_os = "android", target_os = "ios")/g' "$f"
-          git diff
-          git config user.name "ios-port-bot"
-          git config user.email "bot@users.noreply.github.com"
-          git add -A
-          git diff --cached --quiet || git commit -m "iOS: learn_layout vacio como en Android"
-          git push origin HEAD:iOS-port-test
-      - name: Check iOS build
+          cat horizon/crates/horizon-hdr/Cargo.toml
+          head -150 horizon/crates/horizon-hdr/src/lib.rs
+      - name: Check iOS (todos los errores)
         working-directory: horizon
-        run: cargo check --target aarch64-apple-ios -p horizon-client
+        continue-on-error: true
+        run: cargo check --keep-going --target aarch64-apple-ios -p horizon-client
