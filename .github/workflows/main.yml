@@ -7,16 +7,11 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: iOS-port-test
-      - uses: dtolnay/rust-toolchain@stable
-        with:
-          targets: aarch64-apple-ios
-      - name: Quien trae wayland y arboard
-        working-directory: horizon
+      - name: Ver arboard
         run: |
-          echo "=== wayland-backend ==="
-          cargo tree --target aarch64-apple-ios -p horizon-client -i wayland-backend || true
-          echo "=== arboard ==="
-          cargo tree --target aarch64-apple-ios -p horizon-client -i arboard || true
-      - name: Check iOS build
-        working-directory: horizon
-        run: cargo check --target aarch64-apple-ios -p horizon-client
+          echo "=== Cargo.toml de horizon-client-input ==="
+          cat horizon/crates/horizon-client-input/Cargo.toml
+          echo "=== usos de arboard ==="
+          grep -rn "arboard" horizon/crates --include=*.rs --include=Cargo.toml || true
+          echo "=== usos de clipboard ==="
+          grep -rn -i "clipboard" horizon/crates --include=*.rs | head -60 || true
