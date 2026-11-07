@@ -120,7 +120,7 @@ pub trait Clipboard {
 }
 
 /// Android has no clipboard arboard can reach: text copied in the game is pasted in the game.
-#[cfg(target_os = "android")]
+#[cfg(any(target_os = "android", target_os = "ios"))]
 mod arboard {
     pub enum Error {
         ContentNotAvailable,

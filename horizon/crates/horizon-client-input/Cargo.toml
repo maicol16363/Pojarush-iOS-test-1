@@ -16,7 +16,7 @@ png = "0.18"
 horizon-dualsense = { path = "../horizon-dualsense", optional = true }
 
 # arboard has no Android backend: there the clipboard stays inside the game (clipboard.rs).
-[target.'cfg(not(target_os = "android"))'.dependencies]
+[target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
 arboard = { version = "3.6.1", default-features = false, features = ["wayland-data-control"] }
 
 [features]
