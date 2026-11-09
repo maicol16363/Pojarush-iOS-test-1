@@ -1,5 +1,7 @@
 name: ios-check
 on: workflow_dispatch
+permissions:
+  contents: write
 jobs:
   check:
     runs-on: macos-latest
@@ -10,11 +12,23 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
         with:
           targets: aarch64-apple-ios
-      - name: Ver horizon-hdr
+      - name: Parche horizon-hdr
         run: |
-          cat horizon/crates/horizon-hdr/Cargo.toml
-          head -150 horizon/crates/horizon-hdr/src/lib.rs
-      - name: Check iOS (todos los errores)
+          for f in horizon/crates/horizon-hdr/Cargo.toml horizon/crates/horizon-hdr/src/lib.rs; do
+            sed -i '' 's/target_os = "macos"/target_vendor = "apple"/g' "$f"
+          done
+      - name: Compilar
         working-directory: horizon
         continue-on-error: true
-        run: cargo check --keep-going --target aarch64-apple-ios -p horizon-client
+        run: cargo check --keep-going --message-format short --target aarch64-apple-ios -p horizon-client > ../errors_raw.txt 2>&1
+      - name: Reporte
+        if: always()
+        run: |
+          mkdir -p ci-report
+          { echo "## ERRORES"; grep -E "error" errors_raw.txt | head -80; echo; echo "## USOS macos/unix"; grep -rn -E 'target_os = "macos"|cfg\(unix\)|target_family = "unix"' horizon/crates --include=*.rs --include=Cargo.toml | cut -c1-170 | head -80; } > ci-report/report.txt
+          rm errors_raw.txt
+          git config user.name "ios-port-bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add -A
+          git commit -m "ci: reporte" || true
+          git push origin HEAD:iOS-port-test
